@@ -12,70 +12,93 @@ let sessionRef; // To track the game session - active or not.
 let moveRef;  // To track the moves each player made.
 let dimensionRef;  // To track changes to the board dimension.
 
+/**
+ * Watch for the "move" that's been taken by my peer,
+ * and "replay" it on my own board.
+ *
+ * @param snapshot
+ */
 const moveWatcher = function(snapshot) {
   if (!snapshot.val()) {
     return;
   }
-  console.log('New move received', snapshot.val());
+  // New move received.
   const [row, column, symbol] = snapshot.val();
 
   if (symbol !== game.selfSymbol()) {
+    // The other player moved. Unlock self.
     lockGame(false);
     autoMove([row, column]);
-    console.log('The other player moved. Unlock self.');
   } else {
     lockGame(true);
   }
 };
 
+/**
+ * Watch for the start of a game session.
+ * If both players are present, start the game.
+ *
+ * @param snapshot
+ */
 const sessionWatcher = function(snapshot) {
   if (!snapshot.val()) {
-    console.log("Game has been reset");
-    // signIn().then(signInComplete);
+    // Game has been reset because the players info has gone missing.
+    // Introduce some random delay to avoid deadlock.
     setTimeout(function() {
       location.reload();
     }, Math.floor(Math.random() * 500));
     return;
   }
-  console.log("Session state change:", snapshot.val());
+
+  // Both players have come online.
   if (snapshot.val().length === 2) {
     updateGameInfo({player: null, info: 'Now begins the fight!'});
-    console.log("Self", game.self);
-    console.log("Active player", game.activePlayer);
+    // If I'm the one to move first, unlock my board, and the game begins.
     if (game.self === game.activePlayer) {
       lockGame(false);
-      // swapPlayer();
     }
-
-    moveRef = firebase.database().ref('/game/move');
-    moveRef.on('value', moveWatcher);
   }
 };
 
+/**
+ * Handle the change to the board dimension mid game session.
+ * If the dimension has been changed, we will have to reset the
+ * board.
+ *
+ * @param snapshot
+ */
 const dimensionWatcher = function(snapshot) {
   if (!snapshot.val()) {
     return;
   }
 
   const newDimension = snapshot.val();
-  console.log('New dimension received', newDimension);
 
+  // Reset the existing moves, but not the players info.
   if (newDimension !== game.dimension) {
     $('.dimension').text(newDimension);
+
     game.initialise(newDimension);
     buildBoard();
-    console.log(game.self, game.activePlayer);
+
+    // Re-apply the board lock.
     if (game.self !== game.activePlayer) {
       lockGame(true);
-      // swapPlayer();
     }
   }
 };
 
+/**
+ * Handle the "check-in" process of players.
+ * Whoever arrives first will be assigned "X" and gets to move first.
+ *
+ * @returns {Promise<number>} The assigned symbol's numeric identification. 0: X; 1: O; -1: (wait)
+ */
 const signIn = async function () {
   let players = await getPlayers();
   console.log(players);
 
+  // If both players info are already there, it means a game is in session.
   if (players.length >= 2) {
     updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
     return -1;
@@ -92,15 +115,22 @@ const signIn = async function () {
 
   game.self = player === 'X' ? 0 : 1;
 
+  // Push the newly checked in player to the database.
   await register(players, player);
 
+  // Write the initial dimension to the database.
   await setDimension(game.dimension);
 
+  // Update the UI.
   updateGameInfo({player, info});
 
   return game.self;
 };
 
+/**
+ * Handle the post-check-in process, to register the "value-changed" handlers.
+ * @param player
+ */
 const signInComplete = function(player) {
   if (player < 0) {
     return;
@@ -111,6 +141,10 @@ const signInComplete = function(player) {
 
   dimensionRef = firebase.database().ref('/game/dimension');
   dimensionRef.on('value', dimensionWatcher);
+
+  // Subscribe to the "move" data in the database.
+  moveRef = firebase.database().ref('/game/move');
+  moveRef.on('value', moveWatcher);
 
   console.log('You are player', player);
 };
