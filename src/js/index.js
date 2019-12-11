@@ -21,7 +21,8 @@ const moveWatcher = function(snapshot) {
     lockGame(false);
     autoMove([row, column]);
     console.log('The other player moved. Unlock self.');
-
+  } else {
+    lockGame(true);
   }
 };
 
@@ -36,6 +37,7 @@ const sessionWatcher = function(snapshot) {
     console.log("Active player", game.activePlayer);
     if (game.self === game.activePlayer) {
       lockGame(false);
+      // swapPlayer();
     }
 
     moveRef = firebase.database().ref('move');
