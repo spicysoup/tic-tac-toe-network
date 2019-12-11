@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic Tac Toe Network Edition</title>
+</head>
+<body>
+<main>
+    <div class="info">
+        <h1>Welcome to the FIGHT!!!<span class="player-self"></span></h1>
+        <h2></h2>
+    </div>
+    <div class="players-seats">
+        <div class="player player-a active-player" data-player-id="0">A</div>
+        <div class="draw">DRAW</div>
+        <div class="dimension-control">
+            <span class="dimension-button" data-dimension-control="down">▾</span>
+            <span class="dimension">4</span>
+            <span class="dimension-button" data-dimension-control="up">▴</span>
+        </div>
+        <div class="player player-b" data-player-id="1">B</div>
+    </div>
+    <div class="board">
+    </div>
+    <div class="control-panel">
+        <button>Reset Game</button>
+    </div>
+</main>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-database.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<!--<script>-->
+<!--  // Your web app's Firebase configuration-->
+<!--  const firebaseConfig = {-->
+<!--    apiKey: 'AIzaSyCvFlF_-RvHpUSt4EISWYUZD9-nE7mbXBI',-->
+<!--    authDomain: 'tic-tac-toe-5a414.firebaseapp.com',-->
+<!--    databaseURL: 'https://tic-tac-toe-5a414.firebaseio.com',-->
+<!--    projectId: 'tic-tac-toe-5a414',-->
+<!--    storageBucket: 'tic-tac-toe-5a414.appspot.com',-->
+<!--    messagingSenderId: '819894234646',-->
+<!--    appId: '1:819894234646:web:bb289aaa2a688da6bb8f37',-->
+<!--  };-->
+<!--  // Initialize Firebase-->
+<!--  firebase.initializeApp(firebaseConfig);-->
+<!--</script>-->
+<script type="application/javascript" src="dist/bundle.js"></script>
+</body>
+</html>
