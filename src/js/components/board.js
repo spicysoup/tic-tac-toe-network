@@ -105,10 +105,12 @@ const buildGame = function() {
       $target.css('font-size', `${$target.width() - 1}px`);
       $target.text(symbol);
 
+      $('.cell').not(':empty').addClass('no-op');
+
       game.board[row][column] = symbol;
       move([row, column, symbol]);
 
-      $target.addClass('no-op');
+      // $target.addClass('no-op');
 
       const winningPath = game.checkWin(row, column);
       if (winningPath !== null) {
@@ -135,6 +137,8 @@ const buildGame = function() {
   });
 
   $('.player').click(function(event) {
+    return;
+
     $('.player').removeClass('active-player');
     let $player = $(event.target);
     $player.addClass('active-player');

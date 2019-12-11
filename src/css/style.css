@@ -89,7 +89,7 @@ main {
     display: inline-block;
     padding-left: 0.2em;
     padding-right: 0.2em;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 .player-a {
