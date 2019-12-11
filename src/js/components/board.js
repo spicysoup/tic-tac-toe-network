@@ -5,8 +5,9 @@ import {move, reset as resetDatabase, clear as clearGame, setDimension} from '..
 const DIMENSION_MIN = 3;
 const DIMENSION_MAX = 8;
 
-export const buildBoard = function() {
+const buildBoard = function() {
   $('.board').empty();
+
   for (let i = 0; i < game.dimension * game.dimension; i++) {
     const coordinates = `${Math.floor(i / game.dimension)},${i %
     game.dimension}`;
@@ -34,11 +35,13 @@ const highlightWinners = function($winner, winningPath) {
   });
 };
 
-export const swapPlayer = function() {
+const swapPlayer = function() {
   const nextPlayerID = -1 * (game.activePlayer - 1);
   let $nextPlayer = $(`[data-player-id=${nextPlayerID}]`);
+
   $('.player').removeClass('active-player');
   $nextPlayer.addClass('active-player');
+
   game.activePlayer = nextPlayerID;
 };
 
@@ -53,10 +56,12 @@ const lockGame = function(lock) {
 const resetGame = function() {
   game.reset();
   resetDatabase();
+
   $('.cell').text('');
   $('.cell').removeClass('winning-cell');
   $('.draw').hide();
   $('.dimension-control').show();
+
   lockGame(false);
 };
 
@@ -70,110 +75,120 @@ const updateGameInfo = function({player = null, info=null}) {
   }
 };
 
-export const autoMove = function([row, column]) {
-  console.log('Auto move');
-  console.log(row, column);
-  console.log($(`.cell[data-cell="${row},${column}"]`));
+/**
+ * This will be called when the peer made a move.
+ * It replays the peer's move on my own board.
+ *
+ * @param row
+ * @param column
+ */
+const autoMove = function([row, column]) {
   $(`.cell[data-cell="${row},${column}"]`).trigger('click');
 };
 
-const buildGame = function() {
-  $('.board').click(function(event) {
-    console.log("Clicked!!!");
-    const $target = $(event.target);
+const moveHandler = function(event) {
+  const $target = $(event.target);
 
-    if ($target.hasClass('no-op')) {
+  if ($target.hasClass('no-op')) {
+    return;
+  }
+
+  let coordinates;
+  if ((coordinates = $target.attr('data-cell'))) {
+    const [row, column] = coordinates.split(',').map((c) => parseInt(c));
+
+    if (game.board[row][column] !== '') {
       return;
     }
 
-    console.log("Still going");
+    // This is to make the symbol align vertically in the cell.
+    $target.css({
+      'line-height': $target.css('height'),
+    });
 
-    let coordinates;
-    if ((coordinates = $target.attr('data-cell'))) {
-      const [row, column] = coordinates.split(',').map((c) => parseInt(c));
+    const symbol = game.players[game.activePlayer].symbol;
 
-      if (game.board[row][column] !== '') {
-        return;
-      }
+    $target.css('font-size', `${$target.width() - 1}px`);
+    $target.text(symbol);
 
-      $target.css({
-        'line-height': $target.css('height'),
-      });
+    $('.cell').not(':empty').addClass('no-op');
 
-      const symbol = game.players[game.activePlayer].symbol;
-      // console.log($target.width());
-      $target.css('font-size', `${$target.width() - 1}px`);
-      $target.text(symbol);
+    game.board[row][column] = symbol;
 
-      $('.cell').not(':empty').addClass('no-op');
+    // Send the move to the database.
+    move([row, column, symbol]);
 
-      game.board[row][column] = symbol;
-      move([row, column, symbol]);
-
-      // $target.addClass('no-op');
-
-      const winningPath = game.checkWin(row, column);
-      if (winningPath !== null) {
-        highlightWinners($target, winningPath);
+    const winningPath = game.checkWin(row, column);
+    if (winningPath !== null) {
+      highlightWinners($target, winningPath);
+      lockGame(true);
+    } else {
+      if (game.isDraw()) {
+        $('.dimension-control').hide();
+        $('.draw').show();
         lockGame(true);
-      } else {
-        if (game.isDraw()) {
-          $('.dimension-control').hide();
-          $('.draw').show();
-          lockGame(true);
-        }
-        swapPlayer();
       }
+      swapPlayer();
     }
-  });
+  }
+};
 
-  $(window).on('resize', function() {
-    const $cells = $('.cell');
-    const width = $cells.eq(0).width();
-    $cells.css({
-      'font-size': `${width - 1}px`,
-      'line-height': `${width}px`,
-    })
-  });
+const boardResizeHandler = function() {
+  const $cells = $('.cell');
+  const width = $cells.eq(0).width();
+  $cells.css({
+    'font-size': `${width - 1}px`,
+    'line-height': `${width}px`,
+  })
+};
 
-  $('.player').click(function(event) {
-    return;
+const playerSwapHandler = function(event) {
+  $('.player').removeClass('active-player');
+  let $player = $(event.target);
+  $player.addClass('active-player');
+  game.activePlayer = parseInt($player.attr('data-player-id'));
+};
 
-    $('.player').removeClass('active-player');
-    let $player = $(event.target);
-    $player.addClass('active-player');
-    game.activePlayer = parseInt($player.attr('data-player-id'));
-  });
+const dimensionChangeHandler = function(event) {
+  const $target = $(event.target);
+  let dimension = game.dimension;
+  if ($target.attr('data-dimension-control') === 'up') {
+    dimension++;
+    if (dimension > DIMENSION_MAX) {
+      dimension = DIMENSION_MIN;
+    }
+  } else {
+    dimension--;
+    if (dimension < DIMENSION_MIN) {
+      dimension = DIMENSION_MAX;
+    }
+  }
+
+  $('.dimension').text(dimension);
+
+  setDimension(dimension);
+  clearGame();
+
+  // game.initialise(game.dimension);
+  // buildBoard();
+};
+
+const buildGame = function() {
+  $('.board').click(moveHandler);
+
+  $(window).on('resize', boardResizeHandler);
+
+  // We removed the capability to manually swap players in network edition.
+  $('.player').click(() => {});
 
   $('.control-panel button').click(resetGame);
 
-  $('.dimension-button').click(function(event) {
-    const $target = $(event.target);
-    let dimension = game.dimension;
-    if ($target.attr('data-dimension-control') === 'up') {
-      dimension++;
-      if (dimension > DIMENSION_MAX) {
-        dimension = DIMENSION_MIN;
-      }
-    } else {
-      dimension--;
-      if (dimension < DIMENSION_MIN) {
-        dimension = DIMENSION_MAX;
-      }
-    }
-
-    $('.dimension').text(dimension);
-
-    setDimension(dimension);
-    clearGame();
-
-    // game.initialise(game.dimension);
-    // buildBoard();
-  });
+  $('.dimension-button').click(dimensionChangeHandler);
 
   game.initialise(4);
+
   buildBoard();
   buildPlayers();
 };
 
-export {buildGame, updateGameInfo, lockGame};
+export {buildGame, updateGameInfo, lockGame, autoMove, swapPlayer, buildBoard};

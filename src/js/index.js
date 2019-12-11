@@ -128,7 +128,7 @@ const signIn = async function () {
 };
 
 /**
- * Handle the post-check-in process, to register the "value-changed" handlers.
+ * Handle the post-check-in process, to register various "database value changed" handlers.
  * @param player
  */
 const signInComplete = function(player) {
@@ -136,9 +136,11 @@ const signInComplete = function(player) {
     return;
   }
 
+  // Subscribe to the "game session" data in the database.
   sessionRef = firebase.database().ref('/game/players');
   sessionRef.on('value', sessionWatcher);
 
+  // Subscribe to the "dimension change" data in the database.
   dimensionRef = firebase.database().ref('/game/dimension');
   dimensionRef.on('value', dimensionWatcher);
 
@@ -149,8 +151,11 @@ const signInComplete = function(player) {
   console.log('You are player', player);
 };
 
+// Draw the main UI.
 buildGame();
 
+// Lock up the board by default
 lockGame(true);
 
+// Check in new player
 signIn().then(signInComplete);
