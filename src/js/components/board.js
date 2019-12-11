@@ -1,5 +1,6 @@
 import $ from "jquery";
 import game from '../game';
+import {move} from '../firebaseConfig';
 
 const DIMENSION_MIN = 3;
 const DIMENSION_MAX = 8;
@@ -33,7 +34,7 @@ const highlightWinners = function($winner, winningPath) {
   });
 };
 
-const swapPlayer = function() {
+export const swapPlayer = function() {
   const nextPlayerID = -1 * (game.activePlayer - 1);
   let $nextPlayer = $(`[data-player-id=${nextPlayerID}]`);
   $('.player').removeClass('active-player');
@@ -60,14 +61,16 @@ const resetGame = function() {
 
 const updateGameInfo = function({player = null, info=null}) {
   if (player) {
-    $('.player-self').text(player);
-  } else {
-    $('.info h1').text('');
+    $('.info h1').text(`You are player [${player}]`);
   }
 
   if (info) {
     $('.info h2').text(info);
   }
+};
+
+export const autoMove = function([row, column]) {
+  $(`.cell[data-cell="${row},${column}"]`).trigger('click');
 };
 
 const buildGame = function() {
@@ -92,10 +95,11 @@ const buildGame = function() {
 
       const symbol = game.players[game.activePlayer].symbol;
       // console.log($target.width());
-      $target.css('font-size', `${$target.width() - 1}px`)
+      $target.css('font-size', `${$target.width() - 1}px`);
       $target.text(symbol);
 
       game.board[row][column] = symbol;
+      move([row, column, symbol]);
 
       $target.addClass('no-op');
 
@@ -156,4 +160,4 @@ const buildGame = function() {
   buildPlayers();
 };
 
-export {buildGame, updateGameInfo};
+export {buildGame, updateGameInfo, lockGame};

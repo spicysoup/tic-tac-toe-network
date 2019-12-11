@@ -1,32 +1,55 @@
 import firebaseConfig from './firebaseConfig';
-// import game from './game';
-import {buildGame, updateGameInfo} from './components/board';
+import {buildGame, updateGameInfo, lockGame, swapPlayer, autoMove} from './components/board';
 import {getPlayers, register} from './firebaseConfig';
+import game from './game';
 import '../css/style.css';
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-console.log('Database', firebase);
-console.log(firebaseConfig);
+let sessionRef; // To track the game session - active or not.
+let moveRef;  // To track the moves each player made.
 
-function writeUserData(userId, name, email, imageUrl) {
-  firebase.database().ref('users/' + userId).set({
-    username: name,
-    email: email,
-    profile_picture : imageUrl
-  });
-}
+const moveWatcher = function(snapshot) {
+  if (!snapshot) {
+    return;
+  }
+  console.log('New move received', snapshot.val());
+  const [row, column, symbol] = snapshot.val();
 
-writeUserData('test', 'Bob', 'bob@example.com', 'https://google.com');
+  if (symbol !== game.selfSymbol()) {
+    autoMove([row, column]);
+    console.log('The other player moved. Unlock self.');
+    lockGame(false);
 
-const test = async function f() {
+  }
+};
+
+const sessionWatcher = function(snapshot) {
+  if (!snapshot) {
+    return;
+  }
+  console.log("Session state change:", snapshot.val());
+  if (snapshot.val().length === 2) {
+    updateGameInfo({player: null, info: 'Now begins the fight!'});
+    console.log("Self", game.self);
+    console.log("Active player", game.activePlayer);
+    if (game.self === game.activePlayer) {
+      lockGame(false);
+    }
+
+    moveRef = firebase.database().ref('move');
+    moveRef.on('value', moveWatcher);
+  }
+};
+
+const signIn = async function () {
   let players = await getPlayers();
   console.log(players);
 
   if (players.length >= 2) {
-    updateGameInfo({player: null, info: 'Fight in session. Please wait.'})
-    return;
+    updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
+    return -1;
   }
 
   let player, info;
@@ -38,14 +61,25 @@ const test = async function f() {
     info = 'Now begins the fight!';
   }
 
+  game.self = player === 'X' ? 0 : 1;
   await register(players, player);
 
-  updateGameInfo({player, info})
-  players = await getPlayers();
-  console.log(players);
+  updateGameInfo({player, info});
 
+  return game.self;
 };
 
 buildGame();
 
-test();
+lockGame(true);
+
+signIn().then((player) => {
+  if (player < 0) {
+    return;
+  }
+
+  sessionRef = firebase.database().ref('players');
+  sessionRef.on('value', sessionWatcher);
+
+  console.log('You are player', player);
+});

@@ -25,6 +25,15 @@ const game = {
   ],
 
   activePlayer: 0,
+  self: -1,
+  selfSymbol: function() {
+    if (this.self < 0) {
+      return '';
+    }
+    return this.players[this.self].symbol;
+  },
+  sessionActive: false,
+
   axis: function() {
     return new Array(this.dimension).fill(0);
   },

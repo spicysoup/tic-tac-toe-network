@@ -20,3 +20,7 @@ export const getPlayers = function() {
 export const register = function(existingPlayer, player) {
   return firebase.database().ref('players').set([...existingPlayer, player]);
 };
+
+export const move = function([row, column, symbol]) {
+  return firebase.database().ref('move').set([row, column, symbol]);
+};
