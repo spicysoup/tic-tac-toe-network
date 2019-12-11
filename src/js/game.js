@@ -5,38 +5,43 @@ class Player {
 }
 
 const game = {
-  board: [[]],
+  board: [[]],  // Main data structure for the game board
 
   dimension: 1,
-
-  initialise: function(dimension) {
-    this.dimension = dimension;
-
-    const matrix = new Array(dimension);
-    for (let i = 0; i < dimension; i++) {
-      matrix[i] = new Array(dimension).fill('');
-    }
-    this.board = matrix;
-  },
-
   players: [
     new Player('X'),
     new Player('O'),
   ],
+  activePlayer: 0,  // The player who is to take a move now
+  self: -1, // This is specific to the network edition, to track the current player
 
-  activePlayer: 0,
-  self: -1,
+  /**
+   * A helper method to return the symbol for the "self" player.
+   *
+   * @returns {string|RemoteObject | *}
+   */
   selfSymbol: function() {
     if (this.self < 0) {
       return '';
     }
     return this.players[this.self].symbol;
   },
-  sessionActive: false,
 
+  /**
+   * A helper data structure to help with "board slicing"
+   *
+   * @returns {any[]}
+   */
   axis: function() {
     return new Array(this.dimension).fill(0);
   },
+
+  /**
+   * Diagonal of the board - top-left to bottom-right.
+   *
+   * @param withCoordinates Whether or not to include the coordinates along with the cell content.
+   * @returns {*[][]|*[]}
+   */
   diagonal1: function(withCoordinates = false) {
     const axis = this.axis();
 
@@ -46,6 +51,13 @@ const game = {
       return axis.map((v, i) => this.board[i][i]);
     }
   },
+
+  /**
+   * Diagonal of the board - top-right to bottom-left.
+   *
+   * @param withCoordinates Whether or not to include the coordinates along with the cell content.
+   * @returns {*[][]|*[]}
+   */
   diagonal2: function(withCoordinates = false) {
     const axis = this.axis();
 
@@ -57,6 +69,16 @@ const game = {
     } else {
       return axis.map((v, i) => this.board[i][this.dimension - i - 1]);
     }
+  },
+
+  initialise: function(dimension) {
+    this.dimension = dimension;
+
+    const matrix = new Array(dimension);
+    for (let i = 0; i < dimension; i++) {
+      matrix[i] = new Array(dimension).fill('');
+    }
+    this.board = matrix;
   },
 
   /**
@@ -92,6 +114,12 @@ const game = {
     return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
   },
 
+  /**
+   * Find out if there's a draw.
+   * There is a draw when each row, column and diagonal has at least two different symbols.
+   *
+   * @returns {boolean}
+   */
   isDraw: function() {
     const axis = this.axis();
     const nonEmpty = (v) => v !== '';
@@ -115,6 +143,13 @@ const game = {
     return true;
   },
 
+  /**
+   * Check if the given cell has caused a winning situation.
+   *
+   * @param row
+   * @param column
+   * @returns {null|T} The winning path
+   */
   checkWin: function(row, column) {
     const criticalPaths = this.criticalPaths(row, column);
 
