@@ -70,16 +70,22 @@ const updateGameInfo = function({player = null, info=null}) {
 };
 
 export const autoMove = function([row, column]) {
+  console.log('Auto move');
+  console.log(row, column);
+  console.log($(`.cell[data-cell="${row},${column}"]`));
   $(`.cell[data-cell="${row},${column}"]`).trigger('click');
 };
 
 const buildGame = function() {
   $('.board').click(function(event) {
+    console.log("Clicked!!!");
     const $target = $(event.target);
 
     if ($target.hasClass('no-op')) {
       return;
     }
+
+    console.log("Still going");
 
     let coordinates;
     if ((coordinates = $target.attr('data-cell'))) {

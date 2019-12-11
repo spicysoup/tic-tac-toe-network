@@ -11,22 +11,22 @@ let sessionRef; // To track the game session - active or not.
 let moveRef;  // To track the moves each player made.
 
 const moveWatcher = function(snapshot) {
-  if (!snapshot) {
+  if (!snapshot.val()) {
     return;
   }
   console.log('New move received', snapshot.val());
   const [row, column, symbol] = snapshot.val();
 
   if (symbol !== game.selfSymbol()) {
+    lockGame(false);
     autoMove([row, column]);
     console.log('The other player moved. Unlock self.');
-    lockGame(false);
 
   }
 };
 
 const sessionWatcher = function(snapshot) {
-  if (!snapshot) {
+  if (!snapshot.val()) {
     return;
   }
   console.log("Session state change:", snapshot.val());
