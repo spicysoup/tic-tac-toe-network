@@ -1,6 +1,6 @@
 import $ from "jquery";
 import game from '../game';
-import {move} from '../firebaseConfig';
+import {move, reset as resetDatabase} from '../firebaseConfig';
 
 const DIMENSION_MIN = 3;
 const DIMENSION_MAX = 8;
@@ -52,6 +52,7 @@ const lockGame = function(lock) {
 
 const resetGame = function() {
   game.reset();
+  resetDatabase();
   $('.cell').text('');
   $('.cell').removeClass('winning-cell');
   $('.draw').hide();

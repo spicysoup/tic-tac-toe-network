@@ -28,6 +28,9 @@ const moveWatcher = function(snapshot) {
 
 const sessionWatcher = function(snapshot) {
   if (!snapshot.val()) {
+    console.log("Game has been reset");
+    // signIn().then(signInComplete);
+    location.reload();
     return;
   }
   console.log("Session state change:", snapshot.val());
@@ -40,7 +43,7 @@ const sessionWatcher = function(snapshot) {
       // swapPlayer();
     }
 
-    moveRef = firebase.database().ref('move');
+    moveRef = firebase.database().ref('/game/move');
     moveRef.on('value', moveWatcher);
   }
 };
@@ -71,17 +74,19 @@ const signIn = async function () {
   return game.self;
 };
 
-buildGame();
-
-lockGame(true);
-
-signIn().then((player) => {
+const signInComplete = function(player) {
   if (player < 0) {
     return;
   }
 
-  sessionRef = firebase.database().ref('players');
+  sessionRef = firebase.database().ref('/game/players');
   sessionRef.on('value', sessionWatcher);
 
   console.log('You are player', player);
-});
+};
+
+buildGame();
+
+lockGame(true);
+
+signIn().then(signInComplete);

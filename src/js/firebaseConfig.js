@@ -9,7 +9,7 @@ export default {
 };
 
 export const getPlayers = function() {
-  return firebase.database().ref('/players').once('value').then(function(snapshot) {
+  return firebase.database().ref('/game/players').once('value').then(function(snapshot) {
     const user = snapshot.val() || [];
     console.log(user);
     return user;
@@ -18,9 +18,13 @@ export const getPlayers = function() {
 };
 
 export const register = function(existingPlayer, player) {
-  return firebase.database().ref('players').set([...existingPlayer, player]);
+  return firebase.database().ref('/game/players').set([...existingPlayer, player]);
 };
 
 export const move = function([row, column, symbol]) {
-  return firebase.database().ref('move').set([row, column, symbol]);
+  return firebase.database().ref('/game/move').set([row, column, symbol]);
+};
+
+export const reset = function() {
+  return firebase.database().ref('/game').remove();
 };
