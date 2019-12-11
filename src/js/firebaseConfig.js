@@ -28,3 +28,11 @@ export const move = function([row, column, symbol]) {
 export const reset = function() {
   return firebase.database().ref('/game').remove();
 };
+
+export const clear = function() {
+  return firebase.database().ref('/game/move').remove();
+};
+
+export const setDimension = function(dimension) {
+  return firebase.database().ref('/game/dimension').set(dimension);
+};

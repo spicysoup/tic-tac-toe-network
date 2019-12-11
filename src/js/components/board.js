@@ -1,11 +1,11 @@
 import $ from "jquery";
 import game from '../game';
-import {move, reset as resetDatabase} from '../firebaseConfig';
+import {move, reset as resetDatabase, clear as clearGame, setDimension} from '../firebaseConfig';
 
 const DIMENSION_MIN = 3;
 const DIMENSION_MAX = 8;
 
-const buildBoard = function() {
+export const buildBoard = function() {
   $('.board').empty();
   for (let i = 0; i < game.dimension * game.dimension; i++) {
     const coordinates = `${Math.floor(i / game.dimension)},${i %
@@ -149,21 +149,26 @@ const buildGame = function() {
 
   $('.dimension-button').click(function(event) {
     const $target = $(event.target);
+    let dimension = game.dimension;
     if ($target.attr('data-dimension-control') === 'up') {
-      game.dimension++;
-      if (game.dimension > DIMENSION_MAX) {
-        game.dimension = DIMENSION_MIN;
+      dimension++;
+      if (dimension > DIMENSION_MAX) {
+        dimension = DIMENSION_MIN;
       }
     } else {
-      game.dimension--;
-      if (game.dimension < DIMENSION_MIN) {
-        game.dimension = DIMENSION_MAX;
+      dimension--;
+      if (dimension < DIMENSION_MIN) {
+        dimension = DIMENSION_MAX;
       }
     }
 
-    $('.dimension').text(game.dimension);
-    game.initialise(game.dimension);
-    buildBoard();
+    $('.dimension').text(dimension);
+
+    setDimension(dimension);
+    clearGame();
+
+    // game.initialise(game.dimension);
+    // buildBoard();
   });
 
   game.initialise(4);
