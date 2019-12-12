@@ -41,7 +41,7 @@ const highlightWinners = function($winner, winningPath) {
 };
 
 const swapPlayer = function() {
-  const nextPlayerID = -1 * (game.activePlayer - 1);
+  const nextPlayerID = game.activePlayer === 0 ? 1 : 0; // -1 * (game.activePlayer - 1);
   let $nextPlayer = $(`[data-player-id=${nextPlayerID}]`);
 
   $('.player').removeClass('active-player');
@@ -59,6 +59,9 @@ const lockGame = function(lock) {
 };
 
 const resetGame = function() {
+  console.log('---Self---', game.self);
+  console.log('---Active player---', game.activePlayer);
+
   game.reset();
   // resetDatabase(game.sessionID);
 
@@ -67,11 +70,21 @@ const resetGame = function() {
   $('.draw').hide();
   $('.dimension-control').show();
 
-  lockGame(false);
+  // lockGame(false);
 
   game.round = game.roundCounter.next().value;
 
   setRound(game.round, game.sessionID);
+
+  console.log('===Self===', game.self);
+  console.log('===Active player===', game.activePlayer);
+
+  // Re-apply the board lock.
+  if (game.self !== game.activePlayer) {
+    lockGame(true);
+  } else {
+    lockGame(false);
+  }
 };
 
 const updateGameInfo = function({player = null, info = null}) {
@@ -96,6 +109,9 @@ const autoMove = function([row, column]) {
 };
 
 const moveHandler = function(event) {
+  console.log('+++Self+++', game.self);
+  console.log('+++Active player+++', game.activePlayer);
+
   const $target = $(event.target);
 
   if ($target.hasClass('no-op')) {
@@ -172,7 +188,7 @@ const dimensionChangeHandler = function(event) {
       dimension = DIMENSION_MAX;
     }
   }
-
+  // game.dimension = dimension;
   $('.dimension').text(dimension);
 
   setDimension(dimension, game.sessionID);
@@ -195,6 +211,8 @@ const buildGame = function() {
 
   buildBoard();
   buildPlayers();
+
+  $('main').show();
 };
 
 export {

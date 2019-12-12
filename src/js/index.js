@@ -91,6 +91,8 @@ const dimensionWatcher = function(snapshot) {
     // Re-apply the board lock.
     if (game.self !== game.activePlayer) {
       lockGame(true);
+    } else {
+      lockGame(false);
     }
   }
 };
@@ -99,6 +101,9 @@ const resetWatcher = function(snapshot) {
   if (!snapshot.val()) {
     return;
   }
+
+  console.log('Self', game.self);
+  console.log('Active player', game.activePlayer);
 
   console.log('Current value', game.round);
   console.log('Recevived round', snapshot.val());
@@ -110,10 +115,10 @@ const resetWatcher = function(snapshot) {
   resetGame();
   // game.round = game.roundCounter.next().value;
 
-  // Re-apply the board lock.
-  if (game.self !== game.activePlayer) {
-    lockGame(true);
-  }
+  // // Re-apply the board lock.
+  // if (game.self !== game.activePlayer) {
+  //   lockGame(true);
+  // }
 };
 
 /**
