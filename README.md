@@ -5,6 +5,7 @@ The purpose of this project is to practise the basics of front-end web developme
 
 # Main features
 * Two players competing across the network.
+* Multiple independent concurrent game sessions.
 * Customisable dimension of the game board, from 3 by 3 to 8 by 8.
 * Capability to detect a draw and a win.
 * Option to reset and restart the game.
@@ -22,7 +23,7 @@ When a winner appears or a draw occurs, the game will be locked down. Either pla
 Any time during a game session, either player can increase or decrease the board's dimension. Please note that the existing moves will be cleared after that.
 
 # Technologies and tools used
-* HTML, CSS and JavaScript.
+* HTML, CSS, JavaScript and jQuery.
 * [Firebase](https://firebase.google.com)
 * [npm](https://www.npmjs.com), [webpack](https://webpack.js.org) and [Babel](https://babeljs.io)
 
@@ -34,8 +35,4 @@ To coordinate the two players' move, the following data structure has been used:
 ## CSS loading order issue
 You may notice that when you hit the game's URL, some un-styled UI elements are momentarily visible before styles are applied. This has something to do with how CSS is being loaded by webpack.
 
-One possible solution is to put the `bundle.js` in `HEAD` but that interferes with my intention of not confining the UI handling functions inside jQuery's `$(document).ready()` scope (because I want to be able to use them in other modules). 
-## Lack of genuine game session controls
-The hastily designed structure of the program means it lacks the concept of real "game sessions". When two players are playing, any other browser session to the same web page will be able to reset the on-going game or change its board dimension.
-
-This problem has its root in the fact that the program doesn't really track the identity of each game session and its association with the two players. It can be addressed by introducing a _session ID_ that is unique to a game and persisted in the database. 
+One possible solution is to put the `bundle.js` in `HEAD` but that interferes with my intention of not confining the UI handling functions inside jQuery's `$(document).ready()` scope (because I want to be able to use them in other modules).
