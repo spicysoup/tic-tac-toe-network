@@ -59,9 +59,6 @@ const lockGame = function(lock) {
 };
 
 const resetGame = function() {
-  console.log('---Self---', game.self);
-  console.log('---Active player---', game.activePlayer);
-
   game.reset();
   // resetDatabase(game.sessionID);
 
@@ -75,9 +72,6 @@ const resetGame = function() {
   game.round = game.roundCounter.next().value;
 
   setRound(game.round, game.sessionID);
-
-  console.log('===Self===', game.self);
-  console.log('===Active player===', game.activePlayer);
 
   // Re-apply the board lock.
   if (game.self !== game.activePlayer) {
@@ -109,9 +103,6 @@ const autoMove = function([row, column]) {
 };
 
 const moveHandler = function(event) {
-  console.log('+++Self+++', game.self);
-  console.log('+++Active player+++', game.activePlayer);
-
   const $target = $(event.target);
 
   if ($target.hasClass('no-op')) {

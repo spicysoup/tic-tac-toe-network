@@ -102,12 +102,6 @@ const resetWatcher = function(snapshot) {
     return;
   }
 
-  console.log('Self', game.self);
-  console.log('Active player', game.activePlayer);
-
-  console.log('Current value', game.round);
-  console.log('Recevived round', snapshot.val());
-
   if (snapshot.val() === game.round) {
     return;
   }
