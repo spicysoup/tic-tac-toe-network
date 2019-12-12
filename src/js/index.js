@@ -5,8 +5,9 @@ import {
   lockGame,
   autoMove,
   buildBoard,
+  resetGame,
 } from './components/board';
-import {getSessionID, register, setDimension} from './firebaseConfig';
+import {getSessionID, register, setDimension, setRound} from './firebaseConfig';
 import game from './game';
 import '../css/style.css';
 import $ from 'jquery';
@@ -48,11 +49,11 @@ const moveWatcher = function(snapshot) {
  */
 const sessionWatcher = function(snapshot) {
   if (!snapshot.val()) {
-    // Game has been reset because the players info has gone missing.
-    // Introduce some random delay to avoid deadlock.
-    setTimeout(function() {
-      location.reload();
-    }, Math.floor(Math.random() * 500));
+    // // Game has been reset because the players info has gone missing.
+    // // Introduce some random delay to avoid deadlock.
+    // setTimeout(function() {
+    //   location.reload();
+    // }, Math.floor(Math.random() * 500));
     return;
   }
 
@@ -94,6 +95,27 @@ const dimensionWatcher = function(snapshot) {
   }
 };
 
+const resetWatcher = function(snapshot) {
+  if (!snapshot.val()) {
+    return;
+  }
+
+  console.log('Current value', game.round);
+  console.log('Recevived round', snapshot.val());
+
+  if (snapshot.val() === game.round) {
+    return;
+  }
+
+  resetGame();
+  // game.round = game.roundCounter.next().value;
+
+  // Re-apply the board lock.
+  if (game.self !== game.activePlayer) {
+    lockGame(true);
+  }
+};
+
 /**
  * Handle the "check-in" process of players.
  * Whoever arrives first will be assigned "X" and gets to move first.
@@ -120,11 +142,14 @@ const signIn = async function() {
   // Write the initial dimension to the database.
   await setDimension(game.dimension, sessionID);
 
-  // Update the UI.
-  updateGameInfo({player, info});
-
   game.self = player === 'X' ? 0 : 1;
   game.sessionID = sessionID;
+  game.round = game.roundCounter.next().value;
+
+  await setRound(game.round, sessionID);
+
+  // Update the UI.
+  updateGameInfo({player, info});
 
   return game.self;
 };
@@ -145,6 +170,10 @@ const signInComplete = function(player) {
   // Subscribe to the "dimension change" data in the database.
   dimensionRef = firebase.database().ref(`/game/${game.sessionID}/dimension`);
   dimensionRef.on('value', dimensionWatcher);
+
+  // Subscribe to the "round" data in the database.
+  moveRef = firebase.database().ref(`/game/${game.sessionID}/round`);
+  moveRef.on('value', resetWatcher);
 
   // Subscribe to the "move" data in the database.
   moveRef = firebase.database().ref(`/game/${game.sessionID}/move`);

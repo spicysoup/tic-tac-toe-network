@@ -4,7 +4,7 @@ import {
   move,
   reset as resetDatabase,
   clear as clearGame,
-  setDimension,
+  setDimension, setRound,
 } from '../firebaseConfig';
 
 const DIMENSION_MIN = 3;
@@ -60,7 +60,7 @@ const lockGame = function(lock) {
 
 const resetGame = function() {
   game.reset();
-  resetDatabase(game.sessionID);
+  // resetDatabase(game.sessionID);
 
   $('.cell').text('');
   $('.cell').removeClass('winning-cell');
@@ -68,6 +68,10 @@ const resetGame = function() {
   $('.dimension-control').show();
 
   lockGame(false);
+
+  game.round = game.roundCounter.next().value;
+
+  setRound(game.round, game.sessionID);
 };
 
 const updateGameInfo = function({player = null, info = null}) {
@@ -193,4 +197,12 @@ const buildGame = function() {
   buildPlayers();
 };
 
-export {buildGame, updateGameInfo, lockGame, autoMove, swapPlayer, buildBoard};
+export {
+  buildGame,
+  updateGameInfo,
+  lockGame,
+  autoMove,
+  swapPlayer,
+  buildBoard,
+  resetGame,
+};

@@ -53,3 +53,8 @@ export const clear = function(sessionID) {
 export const setDimension = function(dimension, sessionID) {
   return firebase.database().ref(`/game/${sessionID}/dimension`).set(dimension);
 };
+
+export const setRound = function(round, sessionID) {
+  console.log('Called', arguments);
+  return firebase.database().ref(`/game/${sessionID}/round`).set(round);
+};

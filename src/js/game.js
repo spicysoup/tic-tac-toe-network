@@ -14,8 +14,9 @@ const game = {
   ],
   activePlayer: 0,  // The player who is to take a move now
   self: -1, // This is specific to the network edition, to track the current player
-
   sessionID: -1, // Session ID is of the form of epoch timestamp
+  round: -1,  // Number of times the game has been reset (or replayed)
+  roundCounter: null,
 
   /**
    * A helper method to return the symbol for the "self" player.
@@ -81,6 +82,16 @@ const game = {
       matrix[i] = new Array(dimension).fill('');
     }
     this.board = matrix;
+
+    if (!this.roundCounter) {
+      const nextRound = function* () {
+        let round = -1;
+        while (true) {
+          yield ++round;
+        }
+      };
+      this.roundCounter = nextRound();
+    }
   },
 
   /**
@@ -174,6 +185,8 @@ const game = {
         this.board[r][c] = '';
       }
     }
+
+    this.round = this.roundCounter.next().value;
   },
 };
 
