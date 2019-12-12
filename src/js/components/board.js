@@ -60,14 +60,11 @@ const lockGame = function(lock) {
 
 const resetGame = function() {
   game.reset();
-  // resetDatabase(game.sessionID);
 
   $('.cell').text('');
   $('.cell').removeClass('winning-cell');
   $('.draw').hide();
   $('.dimension-control').show();
-
-  // lockGame(false);
 
   game.round = game.roundCounter.next().value;
 
@@ -179,7 +176,6 @@ const dimensionChangeHandler = function(event) {
       dimension = DIMENSION_MAX;
     }
   }
-  // game.dimension = dimension;
   $('.dimension').text(dimension);
 
   setDimension(dimension, game.sessionID);

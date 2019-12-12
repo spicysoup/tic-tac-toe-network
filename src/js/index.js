@@ -49,11 +49,6 @@ const moveWatcher = function(snapshot) {
  */
 const sessionWatcher = function(snapshot) {
   if (!snapshot.val()) {
-    // // Game has been reset because the players info has gone missing.
-    // // Introduce some random delay to avoid deadlock.
-    // setTimeout(function() {
-    //   location.reload();
-    // }, Math.floor(Math.random() * 500));
     return;
   }
 
@@ -107,12 +102,6 @@ const resetWatcher = function(snapshot) {
   }
 
   resetGame();
-  // game.round = game.roundCounter.next().value;
-
-  // // Re-apply the board lock.
-  // if (game.self !== game.activePlayer) {
-  //   lockGame(true);
-  // }
 };
 
 /**
