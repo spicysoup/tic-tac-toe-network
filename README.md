@@ -29,3 +29,13 @@ Any time during a game session, either player can increase or decrease the board
 # Database schema
 To coordinate the two players' move, the following data structure has been used:
 ![database schema](/docs/images/database.png)
+
+# Major known issues
+## CSS loading order issue
+You may notice that when you hit the game's URL, some un-styled UI elements are momentarily visible before styles are applied. This has something to do with how CSS is being loaded by webpack.
+
+One possible solution is to put the `bundle.js` in `HEAD` but that interferes with my intention of not confining the UI handling functions inside jQuery's `$(document).ready()` scope (because I want to be able to use them in other modules). 
+## Lack of genuine game session controls
+The hastily designed structure of the program means it lacks the concept of real "game sessions". When two players are playing, any other browser session to the same web page will be able to reset the on-going game or change its board dimension.
+
+This problem has its root in the fact that the program doesn't really track the identity of each game session and its association with the two players. It can be addressed by introducing a _session ID_ that is unique to a game and persisted in the database. 
