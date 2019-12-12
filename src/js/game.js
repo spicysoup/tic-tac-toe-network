@@ -15,7 +15,7 @@ const game = {
   activePlayer: 0,  // The player who is to take a move now
   self: -1, // This is specific to the network edition, to track the current player
 
-  sessionID: -1,
+  sessionID: -1, // Session ID is of the form of epoch timestamp
 
   /**
    * A helper method to return the symbol for the "self" player.

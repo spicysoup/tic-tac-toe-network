@@ -21,7 +21,8 @@ export const getSessionID = function() {
 
         const sessionIDs = Object.keys(sessions);
 
-        const availableSessionIDs = sessionIDs.filter((s) => sessions[s].players.length < 2);
+        const availableSessionIDs = sessionIDs.filter(
+            (s) => sessions[s].players.length < 2);
         if (availableSessionIDs.length === 0) {
           return -1;
         }
@@ -36,7 +37,9 @@ export const register = function(player, sessionID) {
 };
 
 export const move = function([row, column, symbol], sessionID) {
-  return firebase.database().ref(`/game/${sessionID}/move`).set([row, column, symbol]);
+  return firebase.database().
+      ref(`/game/${sessionID}/move`).
+      set([row, column, symbol]);
 };
 
 export const reset = function(sessionID) {

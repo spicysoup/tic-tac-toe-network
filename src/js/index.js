@@ -102,7 +102,6 @@ const dimensionWatcher = function(snapshot) {
  */
 const signIn = async function() {
   let sessionID = await getSessionID();
-  console.log(sessionID);
 
   let player, info;
 
@@ -114,16 +113,6 @@ const signIn = async function() {
     player = 'O';
     info = 'Now begins the fight!';
   }
-
-  // return sessionID;
-
-  // // If both players info are already there, it means a game is in session.
-  // if (players.length >= 2) {
-  //   updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
-  //   return -1;
-  // }
-
-
 
   // Push the newly checked in player to the database.
   await register(player, sessionID);
@@ -170,4 +159,3 @@ lockGame(true);
 
 // Check in new player
 signIn().then(signInComplete);
-// signIn().then(() => {});
