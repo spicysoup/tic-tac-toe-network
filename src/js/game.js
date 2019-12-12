@@ -15,6 +15,8 @@ const game = {
   activePlayer: 0,  // The player who is to take a move now
   self: -1, // This is specific to the network edition, to track the current player
 
+  sessionID: -1,
+
   /**
    * A helper method to return the symbol for the "self" player.
    *

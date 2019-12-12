@@ -60,7 +60,7 @@ const lockGame = function(lock) {
 
 const resetGame = function() {
   game.reset();
-  resetDatabase();
+  resetDatabase(game.sessionID);
 
   $('.cell').text('');
   $('.cell').removeClass('winning-cell');
@@ -121,7 +121,7 @@ const moveHandler = function(event) {
     game.board[row][column] = symbol;
 
     // Send the move to the database.
-    move([row, column, symbol]);
+    move([row, column, symbol], game.sessionID);
 
     const winningPath = game.checkWin(row, column);
     if (winningPath !== null) {
@@ -171,8 +171,8 @@ const dimensionChangeHandler = function(event) {
 
   $('.dimension').text(dimension);
 
-  setDimension(dimension);
-  clearGame();
+  setDimension(dimension, game.sessionID);
+  clearGame(game.sessionID);
 };
 
 const buildGame = function() {

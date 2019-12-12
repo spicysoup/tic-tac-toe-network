@@ -6,7 +6,7 @@ import {
   autoMove,
   buildBoard,
 } from './components/board';
-import {getPlayers, register, setDimension} from './firebaseConfig';
+import {getSessionID, register, setDimension} from './firebaseConfig';
 import game from './game';
 import '../css/style.css';
 import $ from 'jquery';
@@ -101,15 +101,13 @@ const dimensionWatcher = function(snapshot) {
  * @returns {Promise<number>} The assigned symbol's numeric identification. 0: X; 1: O; -1: (wait)
  */
 const signIn = async function() {
-  let players = await getPlayers();
-  // If both players info are already there, it means a game is in session.
-  if (players.length >= 2) {
-    updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
-    return -1;
-  }
+  let sessionID = await getSessionID();
+  console.log(sessionID);
 
   let player, info;
-  if (players.length === 0) {
+
+  if (sessionID < 0) {
+    sessionID = Date.now();
     player = 'X';
     info = 'Awaiting player O...';
   } else {
@@ -117,16 +115,27 @@ const signIn = async function() {
     info = 'Now begins the fight!';
   }
 
-  game.self = player === 'X' ? 0 : 1;
+  // return sessionID;
+
+  // // If both players info are already there, it means a game is in session.
+  // if (players.length >= 2) {
+  //   updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
+  //   return -1;
+  // }
+
+
 
   // Push the newly checked in player to the database.
-  await register(players, player);
+  await register(player, sessionID);
 
   // Write the initial dimension to the database.
-  await setDimension(game.dimension);
+  await setDimension(game.dimension, sessionID);
 
   // Update the UI.
   updateGameInfo({player, info});
+
+  game.self = player === 'X' ? 0 : 1;
+  game.sessionID = sessionID;
 
   return game.self;
 };
@@ -141,15 +150,15 @@ const signInComplete = function(player) {
   }
 
   // Subscribe to the "game session" data in the database.
-  sessionRef = firebase.database().ref('/game/players');
+  sessionRef = firebase.database().ref(`/game/${game.sessionID}/players`);
   sessionRef.on('value', sessionWatcher);
 
   // Subscribe to the "dimension change" data in the database.
-  dimensionRef = firebase.database().ref('/game/dimension');
+  dimensionRef = firebase.database().ref(`/game/${game.sessionID}/dimension`);
   dimensionRef.on('value', dimensionWatcher);
 
   // Subscribe to the "move" data in the database.
-  moveRef = firebase.database().ref('/game/move');
+  moveRef = firebase.database().ref(`/game/${game.sessionID}/move`);
   moveRef.on('value', moveWatcher);
 };
 
@@ -161,3 +170,4 @@ lockGame(true);
 
 // Check in new player
 signIn().then(signInComplete);
+// signIn().then(() => {});
