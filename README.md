@@ -30,9 +30,3 @@ Any time during a game session, either player can increase or decrease the board
 # Database schema
 To coordinate the two players' move, the following data structure has been used:
 ![database schema](/docs/images/database-new.png)
-
-# Major known issues
-## CSS loading order issue
-You may notice that when you hit the game's URL, some un-styled UI elements are momentarily visible before styles are applied. This has something to do with how CSS is being loaded by webpack.
-
-One possible solution is to put the `bundle.js` in `HEAD` but that interferes with my intention of not confining the UI handling functions inside jQuery's `$(document).ready()` scope (because I want to be able to use them in other modules).
