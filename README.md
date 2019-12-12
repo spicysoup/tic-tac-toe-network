@@ -29,7 +29,7 @@ Any time during a game session, either player can increase or decrease the board
 
 # Database schema
 To coordinate the two players' move, the following data structure has been used:
-![database schema](/docs/images/database.png)
+![database schema](/docs/images/database-new.png)
 
 # Major known issues
 ## CSS loading order issue
