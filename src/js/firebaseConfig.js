@@ -9,16 +9,19 @@ export default {
 };
 
 export const getPlayers = function() {
-  return firebase.database().ref('/game/players').once('value').then(function(snapshot) {
-    const user = snapshot.val() || [];
-    console.log(user);
-    return user;
-    // ...
-  });
+  return firebase.database().
+      ref('/game/players').
+      once('value').
+      then(function(snapshot) {
+        const player = snapshot.val() || [];
+        return player;
+      });
 };
 
 export const register = function(existingPlayer, player) {
-  return firebase.database().ref('/game/players').set([...existingPlayer, player]);
+  return firebase.database().
+      ref('/game/players').
+      set([...existingPlayer, player]);
 };
 
 export const move = function([row, column, symbol]) {

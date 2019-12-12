@@ -1,5 +1,11 @@
 import firebaseConfig from './firebaseConfig';
-import {buildGame, updateGameInfo, lockGame, swapPlayer, autoMove, buildBoard} from './components/board';
+import {
+  buildGame,
+  updateGameInfo,
+  lockGame,
+  autoMove,
+  buildBoard,
+} from './components/board';
 import {getPlayers, register, setDimension} from './firebaseConfig';
 import game from './game';
 import '../css/style.css';
@@ -94,10 +100,8 @@ const dimensionWatcher = function(snapshot) {
  *
  * @returns {Promise<number>} The assigned symbol's numeric identification. 0: X; 1: O; -1: (wait)
  */
-const signIn = async function () {
+const signIn = async function() {
   let players = await getPlayers();
-  console.log(players);
-
   // If both players info are already there, it means a game is in session.
   if (players.length >= 2) {
     updateGameInfo({player: null, info: 'Fight in session. Please wait.'});
@@ -147,8 +151,6 @@ const signInComplete = function(player) {
   // Subscribe to the "move" data in the database.
   moveRef = firebase.database().ref('/game/move');
   moveRef.on('value', moveWatcher);
-
-  console.log('You are player', player);
 };
 
 // Draw the main UI.

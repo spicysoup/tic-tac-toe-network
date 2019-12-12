@@ -1,6 +1,11 @@
-import $ from "jquery";
+import $ from 'jquery';
 import game from '../game';
-import {move, reset as resetDatabase, clear as clearGame, setDimension} from '../firebaseConfig';
+import {
+  move,
+  reset as resetDatabase,
+  clear as clearGame,
+  setDimension,
+} from '../firebaseConfig';
 
 const DIMENSION_MIN = 3;
 const DIMENSION_MAX = 8;
@@ -65,7 +70,7 @@ const resetGame = function() {
   lockGame(false);
 };
 
-const updateGameInfo = function({player = null, info=null}) {
+const updateGameInfo = function({player = null, info = null}) {
   if (player) {
     $('.info h1').text(`You are player [${player}]`);
   }
@@ -139,7 +144,7 @@ const boardResizeHandler = function() {
   $cells.css({
     'font-size': `${width - 1}px`,
     'line-height': `${width}px`,
-  })
+  });
 };
 
 const playerSwapHandler = function(event) {
@@ -168,9 +173,6 @@ const dimensionChangeHandler = function(event) {
 
   setDimension(dimension);
   clearGame();
-
-  // game.initialise(game.dimension);
-  // buildBoard();
 };
 
 const buildGame = function() {
